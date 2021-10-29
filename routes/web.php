@@ -1,8 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\Controller;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,13 +14,5 @@ use App\Http\Controllers\GalleryController;
 |
 */
 
-Route::get('/{any?}', [UserController::class, 'index'])->name('index');
-Route::post('/login', [UserController::class, 'show'])->name('show_user');
-Route::post('/register', [UserController::class, 'store'])->name('create_user');
-Route::get('/get-data', [GalleryController::class, 'index'])->name('get_data');
-Route::get('/get-image', [GalleryController::class, 'show'])->name('get_img');
-Route::post('/post-image', [GalleryController::class, 'store'])->name('store_img');
+Route::get('/{any}', [Controller::class, 'index'])->where('any', '^(?!api).*$');
 
-Auth::routes();
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

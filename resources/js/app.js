@@ -1,13 +1,17 @@
-import Vue from 'vue';
-import VueRouter from "vue-router";
-import routes from './routes';
+require('./bootstrap');
+window.Vue = require('vue').default;
+
+import Vue from "vue";
 import Layout from './layout/Layout';
 import '../css/app.css';
+import store from "./store";
+import router from "./routes";
 
-Vue.use(VueRouter);
-
-let app = new Vue({
+const app = new Vue({
     el: '#app',
-    router: new VueRouter(routes),
+    store: store,
+    router: router,
     render: h => h(Layout),
 });
+
+export default app;

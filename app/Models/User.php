@@ -25,12 +25,22 @@ class User extends Authenticatable
         'password',
     ];
 
+    protected $guarded = [
+        'id',
+        'email_verified_at'
+    ];
+
     /**
      * The attributes that should be hidden for serialization.
      *
      * @var array
      */
     protected $hidden = [
+        'id',
+        'email_verified_at',
+        'created_at',
+        'updated_at',
+//        necessary
         'password',
         'remember_token',
     ];

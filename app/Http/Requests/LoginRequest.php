@@ -24,9 +24,9 @@ class LoginRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => ['required', 'email:rfc,dns,spoof', 'exists:users,email'],
-            'password' => ['required', 'different:email', 'string', 'min:8'],
-            'persist' => ['nullable'],
+            'email' => ['required', 'string', 'email:rfc,dns,spoof', 'exists:users,email'],
+            'password' => ['required', 'string', 'different:email', 'min:6'],
+            'persist' => ['required', 'boolean'],
         ];
     }
 }

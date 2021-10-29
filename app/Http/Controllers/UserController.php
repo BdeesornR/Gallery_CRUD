@@ -5,43 +5,47 @@ namespace App\Http\Controllers;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
-    {
-        return view('welcome');
-    }
-
-    public function store(RegisterRequest $request)
+    public function register(RegisterRequest $request)
     {
         $validated = $request->validated();
+        $encryptPassword = Hash::make($validated['password']);
 
         $user = new User();
-
-        $encryptPassword = Hash::make($validated['password']);
 
         $user->username = $validated['name'];
         $user->email = $validated['email'];
         $user->password = $encryptPassword;
 
         $user->save();
+
+        session()->invalidate();
+        Auth::login($user);
+
+        return ['email' => $validated['email']];
     }
 
-    public function show(LoginRequest $request) {
+    public function login(LoginRequest $request)
+    {
         $validated = $request->validated();
 
-        $user = User::where('email', $validated['email'])->firstOrFail();
+        session()->invalidate();
+        if (Auth::attempt(['email' => $validated['email'], 'password' => $validated['password']], $validated['persist'])) {
+            Auth::logoutOtherDevices($validated['password']);
 
-        if (Hash::check($validated['password'], $user->password)) {
-            return "Success";
+            return ['email' => $validated['email']];
         } else {
-            return "Fail";
+            return "Login Failed";
         }
     }
 
-
+    public function logout()
+    {
+        Auth::logout();
+        session()->invalidate();
+    }
 }

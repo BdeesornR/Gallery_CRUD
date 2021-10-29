@@ -1,3 +1,5 @@
+<!--onCreated send post to see if remember token match one in cookie-->
+
 <template>
     <div class="card">
         <div class="card-header">
@@ -28,23 +30,30 @@
 
 <script>
 import axios from "axios";
+import store from "../store";
 
 export default {
     name: 'Login',
     data: () => ({
         form: {
-            _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             email: '',
             password: '',
-            persist: '',
+            persist: false,
         }
     }),
     methods: {
         formSubmit(event){
             event.preventDefault();
-            axios.post('http://127.0.0.1/login', this.form)
-                .then(res => {
-                    this.$router.replace({ name: 'home' });
+            axios.get('sanctum/csrf-cookie')
+                .then(() => {
+                    axios.post('/api/login', this.form)
+                        .then((res) => {
+                            store.commit('setEmail', res.data.email);
+                            this.$router.replace({name: 'home'});
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
                 })
                 .catch(err => {
                     console.log(err);

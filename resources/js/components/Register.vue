@@ -31,12 +31,12 @@
 
 <script>
 import axios from 'axios';
+import store from "../store";
 
 export default {
     name: 'Signup',
     data: () => ({
         form: {
-            _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             name: '',
             email: '',
             password: '',
@@ -46,13 +46,20 @@ export default {
     methods: {
         formSubmit(event){
             event.preventDefault();
-            axios.post('http://127.0.0.1/register', this.form)
-            .then(res => {
-                this.$router.replace({ name: 'home' });
-            })
-            .catch(err => {
-                console.log(err);
-            })
+            axios.get('sanctum/csrf-cookie')
+                .then(() => {
+                    axios.post('/api/register', this.form)
+                        .then((res) => {
+                            store.commit('setEmail', res.data.email);
+                            this.$router.replace({name: 'home'});
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                })
         }
     }
 }
