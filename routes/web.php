@@ -14,5 +14,5 @@ use App\Http\Controllers\Controller;
 |
 */
 
-Route::get('/{any}', [Controller::class, 'index'])->where('any', '^(?!api).*$');
+Route::get('/{any}', [Controller::class, 'index'])->where('any', '^(?!api|storage).*$');
 

@@ -6,14 +6,17 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
     state: {
         email: null,
+        username: null,
     },
     mutations: {
-        setEmail (state, email) {
+        setState (state, [email, username]) {
             state.email = email;
+            state.username = username;
         },
-        flushEmail (state) {
+        flushState (state) {
             state.email = null;
-        }
+            state.username = null;
+        },
     }
 });
 

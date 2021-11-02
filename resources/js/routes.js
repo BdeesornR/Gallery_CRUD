@@ -15,53 +15,25 @@ const router = new VueRouter({
             path: '/login',
             name: 'login',
             component: Login,
-            beforeEnter: (to, from, next) => {
-                if (store.state.email) {
-                    next('/home')
-                } else {
-                    next()
-                }
-            },
         },
         {
             path: '/register',
             name: 'register',
             component: Register,
-            beforeEnter: (to, from, next) => {
-                if (store.state.email) {
-                    next('/home')
-                } else {
-                    next()
-                }
-            },
         },
         {
             path: '/home',
             name: 'home',
             component: Home,
-            beforeEnter: (to, from, next) => {
-                if (!store.state.email) {
-                    next('/login')
-                } else {
-                    next()
-                }
-            },
         },
         {
             path: '/gallery',
             name: 'gallery',
             component: Gallery,
-            beforeEnter: (to, from, next) => {
-                if (!store.state.email) {
-                    next('/login')
-                } else {
-                    next()
-                }
-            },
         },
         {
             path: '*',
-            redirect: store.state.email ? '/home' : '/login'
+            redirect: store.state.email ? '/login' : '/home'
         }
     ]
 })

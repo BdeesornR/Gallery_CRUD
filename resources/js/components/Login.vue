@@ -7,22 +7,22 @@
         </div>
         <div class="card-body">
             <form ref="form">
-                <div class="formGroup">
+                <div class="form-left">
                     <label for="email">E-Mail Address</label>
-                    <input id="email" type="email" v-model="form.email">
-                </div>
-                <div class="formGroup">
                     <label for="password">Password</label>
+                </div>
+                <div class="form-right">
+                    <input id="email" type="email" v-model="form.email">
                     <input id="password" type="text" v-model="form.password">
+                    <div style="display: flex; align-content: center">
+                        <input id="persist" type="checkbox" v-model="form.persist" value="persist" style="margin-right: 8px">
+                        <label for="persist">Remember Me</label>
+                    </div>
+                    <div style="display: flex; align-items: center">
+                        <button v-on:click="formSubmit" class="btn">Login</button>
+                        <p style="color: #90c4e5">Forgot Your Password ?</p>
+                    </div>
                 </div>
-                <div class="formGroup">
-                    <input id="persist" type="checkbox" v-model="form.persist" value="persist">
-                    <label for="persist">Remember Me</label>
-                </div>
-                <div class="formGroup">
-                    <button v-on:click="formSubmit">Login</button>
-                </div>
-                <p>Forgot Your Password ?</p>
             </form>
         </div>
     </div>
@@ -45,10 +45,10 @@ export default {
         formSubmit(event){
             event.preventDefault();
             axios.get('sanctum/csrf-cookie')
-                .then(() => {
+                .then((res) => {
                     axios.post('/api/login', this.form)
                         .then((res) => {
-                            store.commit('setEmail', res.data.email);
+                            store.commit('setState', [res.data.email, res.data.username]);
                             this.$router.replace({name: 'home'});
                         })
                         .catch(err => {

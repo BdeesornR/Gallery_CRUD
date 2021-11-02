@@ -5,25 +5,27 @@
         </div>
         <div class="card-body">
             <form ref="form">
-                <div class="formGroup">
+                <div class="form-left">
                     <label for="name">Name</label>
-                    <input id="name" type="text" v-model="form.name">
-                </div>
-                <div class="formGroup">
+                    <div class="invalid-feedback"></div>
                     <label for="email">E-Mail Address</label>
-                    <input id="email" type="email" v-model="form.email">
-                </div>
-                <div class="formGroup">
+                    <div class="invalid-feedback"></div>
                     <label for="password">Password</label>
-                    <input id="password" type="text" v-model="form.password">
-                </div>
-                <div class="formGroup">
+                    <div class="invalid-feedback"></div>
                     <label for="password_confirmation">Confirm Password</label>
-                    <input id="password_confirmation" type="text" v-model="form.password_confirmation">
                 </div>
-                <div class="formGroup">
-                    <button v-on:click="formSubmit">Register</button>
+                <div class="form-right">
+                    <input id="name" type="text" v-model="form.name" max="8" required>
+                    <div class="invalid-feedback"></div>
+                    <input id="email" type="email" v-model="form.email" required>
+                    <div class="invalid-feedback"></div>
+                    <input id="password" type="text" v-model="form.password" min="6" required>
+                    <div class="invalid-feedback"></div>
+                    <input id="password_confirmation" type="text" v-model="form.password_confirmation" min="6" required>
+                    <div class="invalid-feedback"></div>
+                    <button v-on:click="formSubmit" class="btn">Register</button>
                 </div>
+                <!-- change br to flex & padding -->
             </form>
         </div>
     </div>
