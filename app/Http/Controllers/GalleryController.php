@@ -9,8 +9,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class GalleryController extends Controller
+
 {
-    public function create()
+    public function index() :array
     {
         // specify user's email and directory name
         $email = Auth::user()['email'];
@@ -22,7 +23,7 @@ class GalleryController extends Controller
         return $this->returnValue($images);
     }
 
-    public function store(GalleryRequest $request)
+    public function store(GalleryRequest $request) :void
     {
         // specify reference to uploaded request
         $validated = $request->validated();
@@ -52,7 +53,7 @@ class GalleryController extends Controller
         }
     }
 
-    public function show($num)
+    public function show($num) :array
     {
         // specify user's email and directory name
         $email = Auth::user()['email'];
@@ -64,7 +65,7 @@ class GalleryController extends Controller
         return $this->returnValue($images);
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $request) :void
     {
         $validated = $request->validate([
             'path' => ['required', 'string']
@@ -73,12 +74,14 @@ class GalleryController extends Controller
 
         $path = str_replace('/storage/', '', $validated['path']);
         $image = Gallery::where('email', $email)->where('filepath', $path)->first();
-        $image->delete();
 
         Storage::disk('public')->delete($path);
+
+        $image->delete();
     }
 
-    private function dirName($e) {
+    private function dirName($e) :string
+    {
         $email = $e;
         $prep_dir = explode('@', $email);
         $sec_prep_dir = implode('_', $prep_dir);
@@ -86,7 +89,8 @@ class GalleryController extends Controller
         return implode('_', $final_prep_dir);
     }
 
-    private function returnValue($images) {
+    private function returnValue($images) :array
+    {
         // retrieve url to images & sent to site
         $return_links = [];
 

@@ -9,12 +9,15 @@
             <form ref="form">
                 <div class="form-left">
                     <label for="email">E-Mail Address</label>
+                    <div :class="this.errMsg.divEmail"></div>
                     <label for="password">Password</label>
                 </div>
                 <div class="form-right">
-                    <input id="email" type="email" v-model="form.email">
-                    <input id="password" type="text" v-model="form.password">
-                    <div style="display: flex; align-content: center">
+                    <input :class="this.errMsg.errInputEmail" id="email" type="email" v-model="form.email" @blur="inputChangeHandler">
+                    <div :class="this.errMsg.divEmail">{{ this.errMsg.errEmail }}</div>
+                    <input :class="this.errMsg.errInputPassword" id="password" type="text" v-model="form.password" @blur="inputChangeHandler">
+                    <div v-if="this.errMsg.errPassword" class="msg err-msg">{{ this.errMsg.errPassword }}</div>
+                    <div style="display: flex; align-content: center; margin-top: 8px">
                         <input id="persist" type="checkbox" v-model="form.persist" value="persist" style="margin-right: 8px">
                         <label for="persist">Remember Me</label>
                     </div>
@@ -30,11 +33,18 @@
 
 <script>
 import axios from "axios";
-import store from "../store";
+import { inputValidation, responseErrorsHandler } from "../formValidation";
 
 export default {
-    name: 'Login',
     data: () => ({
+        errMsg: {
+            divEmail: 'msg',
+            divPassword: 'msg',
+            errEmail: null,
+            errPassword: null,
+            errInputEmail: '',
+            errInputPassword: '',
+        },
         form: {
             email: '',
             password: '',
@@ -42,17 +52,29 @@ export default {
         }
     }),
     methods: {
+        inputChangeHandler(e){
+            this.errMsg = inputValidation(this.errMsg, e.target.id, e.target.value);
+        },
         formSubmit(event){
             event.preventDefault();
             axios.get('sanctum/csrf-cookie')
                 .then((res) => {
                     axios.post('/api/login', this.form)
                         .then((res) => {
-                            store.commit('setState', [res.data.email, res.data.username]);
+                            this.$store.commit('setState', [res.data.email, res.data.username]);
                             this.$router.replace({name: 'home'});
                         })
                         .catch(err => {
-                            console.log(err);
+                            if (err.response.data.errors) {
+                                this.errMsg = responseErrorsHandler(this.errMsg, err);
+                            } else {
+                                this.errMsg.errEmail = null;
+                                this.errMsg.errPassword = null;
+                                this.errMsg.divEmail = 'msg';
+                                this.errMsg.errInputEmail = '';
+                                this.errMsg.errInputPassword = '';
+                                alert('The email address or password is incorrect. Please retry...');
+                            }
                         })
                 })
                 .catch(err => {

@@ -25,8 +25,28 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'min:8'],
-            'email' => ['required', 'string', 'unique:users,email', 'email:rfc,dns,spoof'],
+            'email' => ['required', 'string', 'email:rfc,dns,spoof', 'unique:users,email'],
             'password' => ['required', 'string', 'min:6', 'different:name', 'different:email', 'confirmed'],
+            'password_confirmation' => ['required', 'string'],
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'name.required' => 'A name is required',
+            'name.min' => 'Name must be at least 8 characters',
+
+            'email.required' => 'An email is required',
+            'email.email' => 'This email might not legitimate',
+            'email.unique' => 'This email is already exists',
+
+            'password.required' => 'A password is required',
+            'password.min' => 'Password must be at least 6 characters',
+            'password.different' => 'Password must different from name or email',
+            'password.confirmed' => 'Passwords are not matched',
+
+            'password_confirmation.required' => 'Password Confirmation is required',
         ];
     }
 }

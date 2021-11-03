@@ -17,16 +17,19 @@ use App\Http\Controllers\GalleryController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-Route::middleware('auth:sanctum')->get('/get-data', [SummaryController::class, 'show']);
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::get('/get-user', [UserController::class, 'get_user']);
 Route::post('/logout', [UserController::class, 'logout']);
-Route::middleware('auth:sanctum')->get('/get-image', [GalleryController::class, 'create']);
-Route::middleware('auth:sanctum')->get('/update-image/{num}', [GalleryController::class, 'show']);
-Route::middleware('auth:sanctum')->post('/post-image', [GalleryController::class, 'store']);
-Route::middleware('auth:sanctum')->post('/remove-image', [GalleryController::class, 'destroy']);
+
+Route::middleware('auth:sanctum')->group(function(){
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+
+    Route::get('/get-data', [SummaryController::class, 'index']);
+    Route::get('/get-image', [GalleryController::class, 'index']);
+    Route::get('/update-image/{num}', [GalleryController::class, 'show']);
+    Route::post('/post-image', [GalleryController::class, 'store']);
+    Route::post('/remove-image', [GalleryController::class, 'destroy']);
+});

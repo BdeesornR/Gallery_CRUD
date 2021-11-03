@@ -57,11 +57,13 @@
 import axios from "axios";
 
 export default {
-    name: 'GetData',
     data: () => ({
-        file_usage: null,
+        file_usage: [
+            all_files_num => null,
+        ],
     }),
     mounted() {
+        console.log('home mounted');
         axios.get('/api/get-data')
             .then(res => {
                 this.file_usage = res.data;
@@ -72,6 +74,6 @@ export default {
             .catch(err => {
                 //
             })
-    }
+    },
 }
 </script>

@@ -166,8 +166,12 @@ td {
     justify-content: center;
     align-items: center;
     height: 300px;
-    border: 2px dashed #e5e5e5;
+    border: 2px dashed #e5e5e5 !important;
     border-radius: 5px;
+}
+
+.dropzone.dz-clickable:hover {
+    border-color: #404040 !important;
 }
 
 .gallery {
@@ -189,20 +193,12 @@ form {
     flex-direction: column;
 }
 
-.form-left label {
-    margin-bottom: 14px;
-}
-
 .form-right {
     width: 70%;
     padding-left: 1em;
     text-align: left;
     display: flex;
     flex-direction: column;
-}
-
-.form-right input {
-    margin-bottom: 14px;
 }
 
 input[type=text],
@@ -251,4 +247,20 @@ img {
 .btn:active {
     background-color: #31a1d7;
     border: 1px solid #9dcde5;
+}
+
+.msg {
+    height: 14px;
+}
+
+.msg.err-msg {
+    height: 30px;
+    font-size: 13px;
+    line-height: 30px;
+    color: red;
+    text-align: left;
+}
+
+input.err-msg {
+    border: 1px solid red;
 }

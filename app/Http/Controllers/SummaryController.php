@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class SummaryController extends Controller
 {
-    public function show()
+    public function index() :array
     {
         $email = Auth::user()['email'];
 

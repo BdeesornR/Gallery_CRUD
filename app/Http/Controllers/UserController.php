@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function register(RegisterRequest $request)
+    public function register(RegisterRequest $request) :array
     {
         $validated = $request->validated();
         $encryptPassword = Hash::make($validated['password']);
@@ -24,27 +24,29 @@ class UserController extends Controller
 
         $user->save();
 
-        session()->invalidate();
         Auth::login($user);
 
         return ['email' => $validated['email'], 'username' => $validated['name']];
     }
 
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request) :array
     {
         $validated = $request->validated();
 
-        session()->invalidate();
         if (Auth::attempt(['email' => $validated['email'], 'password' => $validated['password']], $validated['persist'])) {
             Auth::logoutOtherDevices($validated['password']);
-            $user = Auth::user();
+        }
+
+        $user = Auth::user();
+
+        if ($user) {
             return ['email' => $user['email'], 'username' => $user['username']];
         } else {
-            abort(401,'Unauthorized');
+            return ['email' => null, 'username' => null];
         }
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request) :void
     {
         Auth::logout();
         $user = User::where('email', $request->email)->first();
@@ -52,16 +54,17 @@ class UserController extends Controller
             $user->remember_token = null;
             $user->save();
         }
-        session()->invalidate();
     }
 
-    public function get_user()
+    public function get_user() :array
     {
-        if (Auth::check()) {
-            $user = Auth::user();
+        Auth::check();
+        $user = Auth::user();
+
+        if ($user) {
             return ['email' => $user['email'], 'username' => $user['username']];
         } else {
-            abort(401,'Unauthorized');
+            return ['email' => null, 'username' => null];
         }
     }
 }
