@@ -2,105 +2,57 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DeleteRequest;
 use App\Http\Requests\GalleryRequest;
-use App\Models\Gallery;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use App\Repos\GalleryRepo;
+use App\Services\GalleryService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class GalleryController extends Controller
-
 {
-    public function index() :array
+    protected $galleryRepo;
+    protected $galleryService;
+
+    public function __construct(GalleryRepo $galleryRepo, GalleryService $galleryService)
     {
-        // specify user's email and directory name
-        $email = Auth::user()['email'];
-
-        // get user's images (email & filepath)
-        $gallery = Gallery::where('email', $email)->orderBy('created_at', 'asc')->get();
-        $images = $gallery->map->only(['email', 'filepath']);
-
-        return $this->returnValue($images);
+        $this->galleryRepo = $galleryRepo;
+        $this->galleryService = $galleryService;
     }
 
-    public function store(GalleryRequest $request) :void
+    public function getAllImages(User $user): array
     {
-        // specify reference to uploaded request
-        $validated = $request->validated();
-        $upload_request = $validated['file'];
+        $galleries = $this->galleryRepo->getAllOrderByCreatedAt($user, 'asc');
+        $imagesCollection = $galleries->map->only(['filepath']);
 
-        // specify user's email and directory name
-        $email = Auth::user()['email'];
-        $final_dir = self::dirName($email);
-
-        // store uploaded data to storage and database
-        for ($i = 0; $i < count($upload_request); $i++) {
-
-            $type = explode("/", $upload_request[$i]->getClientMimeType());
-
-            // save to storage
-            $path = $upload_request[$i]->store($final_dir, 'public');
-
-            // save to database
-            $image = new Gallery();
-
-            $image->email = $email;
-            $image->filepath = $path;
-            $image->filetype = $type[1];
-            $image->filesize = $upload_request[$i]->getSize();
-
-            $image->save();
-        }
+        return $this->galleryService->getLinks($imagesCollection);
     }
 
-    public function show($num) :array
+    public function getRecentImages(User $user, int $amount): array
     {
-        // specify user's email and directory name
-        $email = Auth::user()['email'];
+        $galleries = $this->galleryRepo->getSomeOrderByCreatedAt($user, 'desc', $amount);
+        $imagesCollection = $galleries->map->only(['filepath']);
 
-        // get user's images (email & filepath)
-        $gallery = Gallery::where('email', $email)->orderBy('created_at', 'desc')->take($num)->get();
-        $images = $gallery->map->only(['email', 'filepath']);
-
-        return $this->returnValue($images);
+        return $this->galleryService->getLinks($imagesCollection);
     }
 
-    public function destroy(Request $request) :void
+    public function saveImages(User $user, GalleryRequest $request): void
     {
-        $validated = $request->validate([
-            'path' => ['required', 'string']
-        ]);
-        $email = Auth::user()['email'];
+        $directory = implode('_', preg_split("/[@.]+/", $user->email));
 
-        $path = str_replace('/storage/', '', $validated['path']);
-        $image = Gallery::where('email', $email)->where('filepath', $path)->first();
-
-        Storage::disk('public')->delete($path);
-
-        $image->delete();
+        DB::transaction(function () use ($user, $directory, $request) {
+            $this->galleryRepo->saveImages($user, $directory, $request->file('file'));
+        });
     }
 
-    private function dirName($e) :string
+    public function deleteImage(User $user, DeleteRequest $request): void
     {
-        $email = $e;
-        $prep_dir = explode('@', $email);
-        $sec_prep_dir = implode('_', $prep_dir);
-        $final_prep_dir = explode('.', $sec_prep_dir);
-        return implode('_', $final_prep_dir);
-    }
+        $filepath = str_replace('/storage/', '', $request->input('path'));
 
-    private function returnValue($images) :array
-    {
-        // retrieve url to images & sent to site
-        $return_links = [];
-
-        for ($i = 0; $i < count($images); $i++) {
-            if (Storage::disk('public')->exists($images[$i]['filepath'])) {
-                $url = Storage::url($images[$i]['filepath']);
-                array_push($return_links, ['url' => $url]);
-            }
-        }
-
-        return $return_links;
+        DB::transaction(function () use ($user, $filepath) {
+            $this->galleryRepo->deleteImage($user, $filepath);
+            Storage::disk('public')->delete($filepath);
+        });
     }
 }

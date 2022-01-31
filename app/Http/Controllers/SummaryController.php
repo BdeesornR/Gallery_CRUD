@@ -2,36 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Gallery;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use App\Repos\GalleryRepo;
+use App\Services\SummaryService;
 
 class SummaryController extends Controller
 {
-    public function index() :array
+    protected $galleryRepo;
+    protected $summaryService;
+
+    public function __construct(GalleryRepo $galleryRepo, SummaryService $summaryService)
     {
-        $email = Auth::user()['email'];
+        $this->galleryRepo = $galleryRepo;
+        $this->summaryService = $summaryService;
+    }
 
-        $gallery = Gallery::where('email', $email)->get();
-        $data = $gallery->map->only(['email', 'filetype', 'filesize']);
+    public function getSummary(User $user): array
+    {
+        $galleries = $this->galleryRepo->getAllImages($user);
+        $imageCollection = $galleries->map->only(['filetype', 'filesize']);
 
-        $return_data = [
-            'all_files_num' => 0,
-            'all_files_size' => 0,
-            'jpeg_num' => 0,
-            'jpeg_size' => 0,
-            'png_num' => 0,
-            'png_size' => 0,
-        ];
-
-        for ($i = 0; $i < count($data); $i++) {
-            $type = $data[$i]['filetype'];
-            $return_data[$type.'_num'] += 1;
-            $return_data[$type.'_size'] += $data[$i]['filesize'];
-        }
-
-        $return_data['all_files_num'] = $return_data['jpeg_num'] + $return_data['png_num'];
-        $return_data['all_files_size'] = $return_data['jpeg_size'] + $return_data['png_size'];
-
-        return $return_data;
+        return $this->summaryService->imageTypeSeparator($imageCollection);
     }
 }

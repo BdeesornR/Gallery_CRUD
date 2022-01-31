@@ -3,8 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
-class GalleryRequest extends FormRequest
+class DeleteRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +14,7 @@ class GalleryRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return Auth::check();
     }
 
     /**
@@ -24,17 +25,15 @@ class GalleryRequest extends FormRequest
     public function rules()
     {
         return [
-            'file.*' => ['required', 'image', 'mimes:jpg,png', 'max:10000'],
+            'path' => ['required', 'string'],
         ];
     }
 
     public function messages()
     {
         return [
-            'file.*.required' => 'Some image is required for upload',
-            'file.*.image' => 'Uploaded files must be images',
-            'file.*.mimes' => 'Uploaded images must be of type jpg or png',
-            'file.*.max' => 'Uploaded image must not exceed 10 kilobytes',
+            'path.required' => 'filepath is required',
+            'path.image' => 'Uploaded files must be images',
         ];
     }
 }

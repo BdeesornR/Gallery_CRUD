@@ -15,7 +15,7 @@ class CreateGalleriesTable extends Migration
     {
         Schema::create('galleries', function (Blueprint $table) {
             $table->id();
-            $table->string('email');
+            $table->bigInteger('user_id');
             $table->string('filepath');
             $table->string('filetype');
             $table->integer('filesize')->unsigned();

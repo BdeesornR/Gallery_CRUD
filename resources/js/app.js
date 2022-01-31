@@ -6,6 +6,7 @@ window.Vue = require('vue').default;
 import Vue from "vue";
 import Vuex from "vuex";
 import VueRouter from "vue-router";
+import VueCookies from "vue-cookies";
 import Layout from './layout/Layout';
 import '../css/app.css';
 import Login from "./components/Login";
@@ -13,26 +14,43 @@ import Register from "./components/Register";
 import Home from "./components/Home";
 import Gallery from "./components/Gallery";
 
+import {
+    FontAwesomeIcon
+} from "@fortawesome/vue-fontawesome";
+import {
+    library
+} from "@fortawesome/fontawesome-svg-core";
+import {
+    faCloudUploadAlt
+} from "@fortawesome/free-solid-svg-icons";
+
+library.add(faCloudUploadAlt);
+
+Vue.component("font-awesome-icon", FontAwesomeIcon);
+
+Vue.config.productionTip = false;
+
 Vue.use(Vuex);
+Vue.use(VueCookies);
 Vue.use(VueRouter);
 
 const store = new Vuex.Store({
     state: {
-        email: null,
+        userId: null,
         username: null,
     },
     mutations: {
-        setState (state, [email, username]) {
-            state.email = email;
+        setState(state, [userId, username]) {
+            state.userId = userId;
             state.username = username;
         },
-        flushState (state) {
-            state.email = null;
+        flushState(state) {
+            state.userId = null;
             state.username = null;
         },
     },
     actions: {
-        fetchData () {
+        fetchData() {
             return axios.get('/api/get-user')
         }
     }
@@ -40,8 +58,7 @@ const store = new Vuex.Store({
 
 const router = new VueRouter({
     mode: 'history',
-    routes: [
-        {
+    routes: [{
             path: '/login',
             name: 'login',
             component: Login,
@@ -63,24 +80,18 @@ const router = new VueRouter({
         },
         {
             path: '*',
-            redirect: store.state.email ? '/login' : '/home'
+            redirect: store.state.email ? '/home' : '/login'
         }
     ]
 });
 
 const routerGuardRules = () => (
     router.beforeEach((to, from, next) => {
-        if (to.name === 'login' && store.state.email) {
-            next ('/home');
+        if (store.state.username && (to.name === 'login' || to.name === 'register')) {
+            next('/home');
         } else next();
-        if (to.name === 'register' && store.state.email) {
-            next ('/home');
-        } else next();
-        if (to.name === 'home' && !store.state.email) {
-            next ('/login');
-        } else next();
-        if (to.name === 'gallery' && !store.state.email) {
-            next ('/login');
+        if (!store.state.username && (to.name === 'home' || to.name === 'gallery')) {
+            next('/login');
         } else next();
     })
 );
@@ -95,10 +106,12 @@ const renderApplication = () => (
 );
 
 store.dispatch('fetchData').then((res) => {
-    store.commit('setState', [res.data.email, res.data.username]);
+    store.commit('setState', [res.data['user_id'], res.data['username']]);
     routerGuardRules();
     renderApplication();
 }).catch((err) => {
+    console.log(err);
+    store.commit('flushState');
     routerGuardRules();
     renderApplication();
-})
+});

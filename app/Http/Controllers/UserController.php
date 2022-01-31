@@ -4,67 +4,72 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
-use App\Models\User;
-use Illuminate\Http\Request;
+use App\Repos\UserRepo;
+use Exception;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
-    public function register(RegisterRequest $request) :array
+    protected $userRepo;
+
+    public function __construct(UserRepo $userRepo)
     {
-        $validated = $request->validated();
-        $encryptPassword = Hash::make($validated['password']);
-
-        $user = new User();
-
-        $user->username = $validated['name'];
-        $user->email = $validated['email'];
-        $user->password = $encryptPassword;
-
-        $user->save();
-
-        Auth::login($user);
-
-        return ['email' => $validated['email'], 'username' => $validated['name']];
+        $this->userRepo = $userRepo;
     }
 
-    public function login(LoginRequest $request) :array
+    public function register(RegisterRequest $request): array
     {
-        $validated = $request->validated();
+        $userData = [
+            'username' => $request->input('name'),
+            'email' => $request->input('email'),
+            'password' => bcrypt($request->input('password'))
+        ];
 
-        if (Auth::attempt(['email' => $validated['email'], 'password' => $validated['password']], $validated['persist'])) {
-            Auth::logoutOtherDevices($validated['password']);
-        }
+        $user = DB::transaction(function () use ($userData) {
+            $user = $this->userRepo->registerUser($userData);
+            Auth::login($user);
+            return $user;
+        });
 
-        $user = Auth::user();
+        return ['user_id' => $user->id, 'username' => $user->username];
+    }
 
-        if ($user) {
-            return ['email' => $user['email'], 'username' => $user['username']];
+    public function login(LoginRequest $request): array
+    {
+        if (Auth::attempt(
+            [
+                'email' => $request->input('email'),
+                'password' => $request->input('password')
+            ],
+            $request->input('persist')
+        )) {
+            Auth::logoutOtherDevices($request->input('password'));
         } else {
-            return ['email' => null, 'username' => null];
+            throw new Exception("There's no such user");
         }
+
+        $user = $this->userRepo->getFirstByEmail($request->input('email'));
+
+        return ['user_id' => $user->id, 'username' => $user->username];
     }
 
-    public function logout(Request $request) :void
+    public function logout(): void
     {
-        Auth::logout();
-        $user = User::where('email', $request->email)->first();
-        if ($user->remember_token) {
-            $user->remember_token = null;
-            $user->save();
-        }
+        DB::transaction(function () {
+            Auth::logout();
+            $this->userRepo->clearRememberToken(Auth::user()['email']);
+        });
     }
 
-    public function get_user() :array
+    public function getUser(): array
     {
-        Auth::check();
-        $user = Auth::user();
-
-        if ($user) {
-            return ['email' => $user['email'], 'username' => $user['username']];
-        } else {
-            return ['email' => null, 'username' => null];
+        if (!Auth::check()) {
+            throw new Exception("There's no such user");
         }
+
+        $user = $this->userRepo->getFirstByEmail(Auth::user()['email']);
+
+        return ['user_id' => $user->id, 'username' => $user->username];
     }
 }
