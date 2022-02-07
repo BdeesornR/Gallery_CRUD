@@ -24,25 +24,26 @@ class GalleryController extends Controller
     public function getAllImages(User $user): array
     {
         $galleries = $this->galleryRepo->getAllOrderByCreatedAt($user, 'asc');
-        $imagesCollection = $galleries->map->only(['filepath']);
+        $imagePathCollection = $galleries->map->only(['filepath']);
 
-        return $this->galleryService->getLinks($imagesCollection);
+        return $this->galleryService->getLinks('public', $imagePathCollection);
     }
 
     public function getRecentImages(User $user, int $amount): array
     {
         $galleries = $this->galleryRepo->getSomeOrderByCreatedAt($user, 'desc', $amount);
-        $imagesCollection = $galleries->map->only(['filepath']);
+        $imagePathCollection = $galleries->map->only(['filepath']);
 
-        return $this->galleryService->getLinks($imagesCollection);
+        return $this->galleryService->getLinks('public', $imagePathCollection);
     }
 
     public function saveImages(User $user, GalleryRequest $request): void
     {
+        $disk = 'public';
         $directory = implode('_', preg_split("/[@.]+/", $user->email));
 
-        DB::transaction(function () use ($user, $directory, $request) {
-            $this->galleryRepo->saveImages($user, $directory, $request->file('file'));
+        DB::transaction(function () use ($user, $disk, $directory, $request) {
+            $this->galleryRepo->saveImages($user, $disk, $directory, $request->file('file'));
         });
     }
 

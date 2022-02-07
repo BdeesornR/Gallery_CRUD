@@ -28,7 +28,9 @@ class UserController extends Controller
 
         $user = DB::transaction(function () use ($userData) {
             $user = $this->userRepo->registerUser($userData);
-            Auth::login($user);
+
+            Auth::login($user, true);
+
             return $user;
         });
 
@@ -37,38 +39,32 @@ class UserController extends Controller
 
     public function login(LoginRequest $request): array
     {
-        if (Auth::attempt(
-            [
-                'email' => $request->input('email'),
-                'password' => $request->input('password')
-            ],
-            $request->input('persist')
-        )) {
+        if (Auth::attempt($request->only('email', 'password'), $request->input('persist'))) {
             Auth::logoutOtherDevices($request->input('password'));
+
+            $user = Auth::user();
+
+            return ['user_id' => $user->id, 'username' => $user->username];
         } else {
             throw new Exception("There's no such user");
         }
-
-        $user = $this->userRepo->getFirstByEmail($request->input('email'));
-
-        return ['user_id' => $user->id, 'username' => $user->username];
     }
 
     public function logout(): void
     {
         DB::transaction(function () {
-            Auth::logout();
-            $this->userRepo->clearRememberToken(Auth::user()['email']);
+            $this->userRepo->clearRememberToken(Auth::user()->email);
+            Auth::logout(); 
         });
     }
 
     public function getUser(): array
     {
         if (!Auth::check()) {
-            throw new Exception("There's no such user");
+            throw new Exception("Unauthenticated");
         }
 
-        $user = $this->userRepo->getFirstByEmail(Auth::user()['email']);
+        $user = Auth::user();
 
         return ['user_id' => $user->id, 'username' => $user->username];
     }

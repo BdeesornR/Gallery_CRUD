@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Storage;
 
 class GalleryService
 {
-    public function getLinks(Collection $imagesCollection): array
+    public function getLinks(string $disk, Collection $imagePathCollection): array
     {
         $returnLinks = [];
 
-        $imagesCollection->each(function ($image) use (&$returnLinks) {
-            if (Storage::disk('public')->exists($image['filepath'])) {
+        $imagePathCollection->each(function ($image) use ($disk, &$returnLinks) {
+            if (Storage::disk($disk)->exists($image['filepath'])) {
                 $url = Storage::url($image['filepath']);
                 array_push($returnLinks, $url);
             }

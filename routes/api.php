@@ -14,15 +14,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/register', 'UserController@register');
-Route::post('/login', 'UserController@login');
-Route::get('/get-user', 'UserController@getUser');
-Route::post('/logout', 'UserController@logout');
+Route::post('/register', 'UserController@register')->name('register');
+Route::post('/login', 'UserController@login')->name('login');
+Route::get('/get-user', 'UserController@getUser')->name('getUser');
+Route::post('/logout', 'UserController@logout')->name('logout');
 
 Route::middleware('auth:sanctum')->prefix('{user}')->group(function() {
-    Route::get('/get-data', 'SummaryController@getSummary');
-    Route::get('/get-image', 'GalleryController@getAllImages');
-    Route::get('/update-image/{amount}', 'GalleryController@getRecentImages');
-    Route::post('/post-image', 'GalleryController@saveImages');
-    Route::post('/remove-image', 'GalleryController@deleteImage');
+    Route::get('/get-summary', 'SummaryController@getSummary')->name('getSummary');
+    Route::get('/get-images', 'GalleryController@getAllImages')->name('getImages');
+    Route::get('/update-images/{amount}', 'GalleryController@getRecentImages')->name('updateImages');
+    Route::post('/post-images', 'GalleryController@saveImages')->name('postImages');
+    Route::post('/remove-image', 'GalleryController@deleteImage')->name('removeImage');
 });

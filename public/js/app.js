@@ -14989,7 +14989,7 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     var _this = this;
 
-    axios__WEBPACK_IMPORTED_MODULE_0___default().get("/api/" + this.$store.state.userId + "/get-image").then(function (res) {
+    axios__WEBPACK_IMPORTED_MODULE_0___default().get("/api/" + this.$store.state.userId + "/get-images").then(function (res) {
       res.data.map(function (elm) {
         return _this.images.push(elm);
       });
@@ -14999,7 +14999,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     dropzoneChangeUrl: function dropzoneChangeUrl() {
-      this.$refs.myVueDropzone.setOption("url", "api/" + this.$store.state.userId + "/post-image");
+      this.$refs.myVueDropzone.setOption("url", "api/" + this.$store.state.userId + "/post-images");
     },
     onFilesAdded: function onFilesAdded(files) {
       this.num = files.length;
@@ -15014,8 +15014,7 @@ __webpack_require__.r(__webpack_exports__);
     imageRetrieveHandler: function imageRetrieveHandler() {
       var _this2 = this;
 
-      axios__WEBPACK_IMPORTED_MODULE_0___default().get("/api/" + this.$store.state.userId + "/update-image/" + this.amount).then(function (res) {
-        console.log(res);
+      axios__WEBPACK_IMPORTED_MODULE_0___default().get("/api/" + this.$store.state.userId + "/update-images/" + this.amount).then(function (res) {
         res.data.map(function (elm) {
           return _this2.images.push(elm);
         });
@@ -15147,11 +15146,8 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     var _this = this;
 
-    axios__WEBPACK_IMPORTED_MODULE_0___default().get("/api/" + this.$store.state.userId + "/get-data").then(function (res) {
+    axios__WEBPACK_IMPORTED_MODULE_0___default().get("/api/" + this.$store.state.userId + "/get-summary").then(function (res) {
       _this.fileUsage = res.data;
-      _this.fileUsage["all_files_size_mb"] = (res.data["all_files_size"] / 1000000).toFixed(2);
-      _this.fileUsage["jpeg_size_mb"] = (res.data["jpeg_size"] / 1000000).toFixed(2);
-      _this.fileUsage["png_size_mb"] = (res.data["png_size"] / 1000000).toFixed(2);
     })["catch"](function (err) {
       console.log(err);
     });
@@ -15598,7 +15594,7 @@ var store = new vuex__WEBPACK_IMPORTED_MODULE_12__["default"].Store({
     }
   },
   actions: {
-    fetchData: function fetchData() {
+    fetchUser: function fetchUser() {
       return axios__WEBPACK_IMPORTED_MODULE_0___default().get('/api/get-user');
     }
   }
@@ -15650,7 +15646,7 @@ var renderApplication = function renderApplication() {
   });
 };
 
-store.dispatch('fetchData').then(function (res) {
+store.dispatch('fetchUser').then(function (res) {
   store.commit('setState', [res.data['user_id'], res.data['username']]);
   routerGuardRules();
   renderApplication();
@@ -52278,31 +52274,49 @@ var render = function () {
     ]),
     _vm._v(" "),
     _c("div", { staticClass: "card" }, [
-      _vm.images.length === 0
-        ? _c("div", { staticClass: "gallery-body" }, [
-            _c("div", { staticClass: "title" }, [_vm._v("WOW, Such Empty")]),
-          ])
-        : _vm._e(),
+      _c(
+        "div",
+        {
+          directives: [
+            {
+              name: "show",
+              rawName: "v-show",
+              value: _vm.images.length === 0,
+              expression: "images.length === 0",
+            },
+          ],
+          staticClass: "gallery-body",
+        },
+        [_c("div", { staticClass: "title" }, [_vm._v("WOW, Such Empty")])]
+      ),
       _vm._v(" "),
-      _vm.images.length !== 0
-        ? _c(
-            "div",
-            { staticClass: "gallery" },
-            _vm._l(_vm.images, function (imageSrc, index) {
-              return _c("div", { key: index }, [
-                _c("img", {
-                  attrs: { src: imageSrc, alt: "img" },
-                  on: {
-                    click: function () {
-                      return _vm.removeImageHandler(index)
-                    },
-                  },
-                }),
-              ])
+      _c(
+        "div",
+        {
+          directives: [
+            {
+              name: "show",
+              rawName: "v-show",
+              value: _vm.images.length !== 0,
+              expression: "images.length !== 0",
+            },
+          ],
+          staticClass: "gallery",
+        },
+        _vm._l(_vm.images, function (imageSrc, index) {
+          return _c("div", { key: index }, [
+            _c("img", {
+              attrs: { src: imageSrc, alt: "img" },
+              on: {
+                click: function () {
+                  return _vm.removeImageHandler(index)
+                },
+              },
             }),
-            0
-          )
-        : _vm._e(),
+          ])
+        }),
+        0
+      ),
     ]),
   ])
 }

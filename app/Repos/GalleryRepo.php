@@ -8,13 +8,6 @@ use Illuminate\Database\Eloquent\Collection;
 
 class GalleryRepo
 {
-    protected $gallery;
-
-    public function __construct(Gallery $gallery)
-    {
-        $this->gallery = $gallery;
-    }
-
     public function getAllImages(User $user): Collection
     {
         return $user->galleries;
@@ -25,23 +18,25 @@ class GalleryRepo
         return $user->galleries()->orderBy('created_at', $order)->get();
     }
 
-    public function getSomeOrderByCreatedAt(User $user, string $order = 'asc', int $num): Collection
+    public function getSomeOrderByCreatedAt(User $user, string $order = 'asc', int $amount): Collection
     {
-        return $user->galleries()->orderBy('created_at', $order)->take($num)->get();
+        return $user->galleries()->orderBy('created_at', $order)->take($amount)->get();
     }
 
-    public function saveImages(User $user, string $directory, array $files): void
+    public function saveImages(User $user, string $disk, string $directory, array $files): void
     {
         foreach ($files as $file) {
             $filetype = explode("/", $file->getClientMimeType());
-            $filepath = $file->store($directory, 'public');
+            $filepath = $file->store($directory, $disk);
 
-            $this->gallery->user_id = $user->id;
-            $this->gallery->filepath = $filepath;
-            $this->gallery->filetype = end($filetype);
-            $this->gallery->filesize = $file->getSize();
+            $gallery = new Gallery();
+            
+            $gallery->user_id = $user->id;
+            $gallery->filepath = $filepath;
+            $gallery->filetype = end($filetype);
+            $gallery->filesize = $file->getSize();
     
-            $this->gallery->save();
+            $gallery->save();
         }
     }
 

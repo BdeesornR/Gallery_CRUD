@@ -31,7 +31,7 @@ class UserRepo
 
     public function clearRememberToken(string $email): void
     {
-        $user = $this->getFirstByEmail($email);
+        $user = $this->user->where('email', $email)->first();
         $user->remember_token = null;
         $user->save();
     }

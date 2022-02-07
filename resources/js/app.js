@@ -50,8 +50,8 @@ const store = new Vuex.Store({
         },
     },
     actions: {
-        fetchData() {
-            return axios.get('/api/get-user')
+        fetchUser() {
+            return axios.get('/api/get-user');
         }
     }
 });
@@ -105,7 +105,7 @@ const renderApplication = () => (
     })
 );
 
-store.dispatch('fetchData').then((res) => {
+store.dispatch('fetchUser').then((res) => {
     store.commit('setState', [res.data['user_id'], res.data['username']]);
     routerGuardRules();
     renderApplication();

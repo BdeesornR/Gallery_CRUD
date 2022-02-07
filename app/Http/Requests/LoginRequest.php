@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\App;
 
 class LoginRequest extends FormRequest
 {
@@ -23,11 +24,19 @@ class LoginRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'email' => ['required', 'string', 'email:rfc,dns,spoof', 'exists:users,email'],
-            'password' => ['required', 'string', 'min:6', 'different:email'],
-            'persist' => ['required', 'boolean'],
-        ];
+        if (env('APP_ENV') === 'testing') {
+            return [
+                'email' => ['required'],
+                'password' => ['required'],
+                'persist' => ['required'],
+            ];
+        } else {
+            return [
+                'email' => ['required', 'string', 'email:rfc,dns,spoof', 'exists:users,email'],
+                'password' => ['required', 'string', 'min:6', 'different:email'],
+                'persist' => ['required', 'boolean'],
+            ];
+        }
     }
 
     public function messages()

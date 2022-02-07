@@ -17,10 +17,10 @@
             </div>
         </div>
         <div class="card">
-            <div v-if="images.length === 0" class="gallery-body">
+            <div v-show="images.length === 0" class="gallery-body">
                 <div class="title">WOW, Such Empty</div>
             </div>
-            <div v-if="images.length !== 0" class="gallery">
+            <div v-show="images.length !== 0" class="gallery">
                 <div v-for="(imageSrc, index) in images" :key="index">
                     <img
                         :src="imageSrc"
@@ -43,6 +43,7 @@ export default {
     components: {
         vueDropzone: vue2Dropzone,
     },
+
     data: () => ({
         images: [],
         amount: 0,
@@ -60,9 +61,10 @@ export default {
             },
         },
     }),
+
     mounted() {
         axios
-            .get("/api/" + this.$store.state.userId + "/get-image")
+            .get("/api/" + this.$store.state.userId + "/get-images")
             .then((res) => {
                 res.data.map((elm) => this.images.push(elm));
             })
@@ -70,39 +72,44 @@ export default {
                 console.log(err);
             });
     },
+
     methods: {
         dropzoneChangeUrl() {
             this.$refs.myVueDropzone.setOption(
                 "url",
-                "api/" + this.$store.state.userId + "/post-image"
+                "api/" + this.$store.state.userId + "/post-images"
             );
         },
+
         onFilesAdded(files) {
             this.num = files.length;
         },
+
         onUploadSuccess(files, response) {
             this.amount = files.length;
             this.imageRetrieveHandler();
         },
+
         onUploadError(files, message, xhr) {
             console.log(files, message, xhr);
         },
+
         imageRetrieveHandler() {
             axios
                 .get(
                     "/api/" +
                         this.$store.state.userId +
-                        "/update-image/" +
+                        "/update-images/" +
                         this.amount
                 )
                 .then((res) => {
-                    console.log(res);
                     res.data.map((elm) => this.images.push(elm));
                 })
                 .catch((err) => {
                     console.log(err);
                 });
         },
+
         removeImageHandler(index) {
             axios
                 .post("/api/" + this.$store.state.userId + "/remove-image", {

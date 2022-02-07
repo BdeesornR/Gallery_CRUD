@@ -92,18 +92,9 @@ export default {
     }),
     mounted() {
         axios
-            .get("/api/" + this.$store.state.userId + "/get-data")
+            .get("/api/" + this.$store.state.userId + "/get-summary")
             .then((res) => {
                 this.fileUsage = res.data;
-                this.fileUsage["all_files_size_mb"] = (
-                    res.data["all_files_size"] / 1000000
-                ).toFixed(2);
-                this.fileUsage["jpeg_size_mb"] = (
-                    res.data["jpeg_size"] / 1000000
-                ).toFixed(2);
-                this.fileUsage["png_size_mb"] = (
-                    res.data["png_size"] / 1000000
-                ).toFixed(2);
             })
             .catch((err) => {
                 console.log(err);
