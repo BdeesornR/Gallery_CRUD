@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Controllers;
+namespace Tests\Unit\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;

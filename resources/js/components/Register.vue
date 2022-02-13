@@ -35,7 +35,7 @@
                     </div>
                     <input
                         id="password"
-                        type="text"
+                        type="password"
                         v-model="form.password"
                         @blur="inputChangeHandler"
                     />
@@ -44,7 +44,7 @@
                     </div>
                     <input
                         id="password_confirmation"
-                        type="text"
+                        type="password"
                         v-model="form.password_confirmation"
                         @blur="inputChangeHandler"
                     />

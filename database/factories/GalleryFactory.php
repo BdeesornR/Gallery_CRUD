@@ -6,7 +6,6 @@ use App\Models\Gallery;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-
 class GalleryFactory extends Factory
 {
     /**

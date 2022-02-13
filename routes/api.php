@@ -23,6 +23,6 @@ Route::middleware('auth:sanctum')->prefix('{user}')->group(function() {
     Route::get('/get-summary', 'SummaryController@getSummary')->name('getSummary');
     Route::get('/get-images', 'GalleryController@getAllImages')->name('getImages');
     Route::get('/update-images/{amount}', 'GalleryController@getRecentImages')->name('updateImages');
-    Route::post('/post-images', 'GalleryController@saveImages')->name('postImages');
+    Route::post('/post-image', 'GalleryController@saveImage')->name('postImage');
     Route::post('/remove-image', 'GalleryController@deleteImage')->name('removeImage');
 });

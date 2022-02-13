@@ -26,7 +26,7 @@
                     <input
                         :class="this.errMsg.errInputPassword"
                         id="password"
-                        type="text"
+                        type="password"
                         v-model="form.password"
                         @blur="inputChangeHandler"
                     />

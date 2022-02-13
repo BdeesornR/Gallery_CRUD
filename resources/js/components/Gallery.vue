@@ -10,9 +10,9 @@
                     id="dropzone"
                     :options="dropzoneOptions"
                     @vdropzone-processing="dropzoneChangeUrl"
-                    v-on:vdropzone-files-added="onFilesAdded"
-                    v-on:vdropzone-success-multiple="onUploadSuccess"
-                    v-on:vdropzone-error-multiple="onUploadError"
+                    v-on:vdropzone-success="onUploadSuccess"
+                    v-on:vdropzone-error="onUploadError"
+                    v-on:vdropzone-queue-complete="onComplete"
                 ></vue-dropzone>
             </div>
         </div>
@@ -50,7 +50,6 @@ export default {
         modalToggle: false,
         dropzoneOptions: {
             url: "url",
-            uploadMultiple: true,
             withCredentials: true,
             addRemoveLinks: true,
             useFontAwesome: true,
@@ -77,21 +76,22 @@ export default {
         dropzoneChangeUrl() {
             this.$refs.myVueDropzone.setOption(
                 "url",
-                "api/" + this.$store.state.userId + "/post-images"
+                "api/" + this.$store.state.userId + "/post-image"
             );
         },
 
-        onFilesAdded(files) {
-            this.num = files.length;
+        onUploadSuccess() {
+            this.amount += 1;
         },
 
-        onUploadSuccess(files, response) {
-            this.amount = files.length;
+        onUploadError(file, message) {
+            file.previewElement.querySelectorAll(
+                ".dz-error-message span"
+            )[0].textContent = message.errors.file[0];
+        },
+
+        onComplete() {
             this.imageRetrieveHandler();
-        },
-
-        onUploadError(files, message, xhr) {
-            console.log(files, message, xhr);
         },
 
         imageRetrieveHandler() {
@@ -103,10 +103,12 @@ export default {
                         this.amount
                 )
                 .then((res) => {
+                    this.amount = 0;
                     res.data.map((elm) => this.images.push(elm));
                 })
                 .catch((err) => {
                     console.log(err);
+                    this.amount = 0;
                 });
         },
 

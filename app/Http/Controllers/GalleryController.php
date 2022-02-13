@@ -37,13 +37,13 @@ class GalleryController extends Controller
         return $this->galleryService->getLinks('public', $imagePathCollection);
     }
 
-    public function saveImages(User $user, GalleryRequest $request): void
+    public function saveImage(User $user, GalleryRequest $request): void
     {
         $disk = 'public';
         $directory = implode('_', preg_split("/[@.]+/", $user->email));
 
         DB::transaction(function () use ($user, $disk, $directory, $request) {
-            $this->galleryRepo->saveImages($user, $disk, $directory, $request->file('file'));
+            $this->galleryRepo->saveImage($user, $disk, $directory, $request->file('file'));
         });
     }
 

@@ -5,6 +5,7 @@ namespace App\Repos;
 use App\Models\Gallery;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\UploadedFile;
 
 class GalleryRepo
 {
@@ -23,21 +24,19 @@ class GalleryRepo
         return $user->galleries()->orderBy('created_at', $order)->take($amount)->get();
     }
 
-    public function saveImages(User $user, string $disk, string $directory, array $files): void
+    public function saveImage(User $user, string $disk, string $directory, UploadedFile $file): void
     {
-        foreach ($files as $file) {
-            $filetype = explode("/", $file->getClientMimeType());
-            $filepath = $file->store($directory, $disk);
+        $filetype = explode("/", $file->getClientMimeType());
+        $filepath = $file->store($directory, $disk);
 
-            $gallery = new Gallery();
-            
-            $gallery->user_id = $user->id;
-            $gallery->filepath = $filepath;
-            $gallery->filetype = end($filetype);
-            $gallery->filesize = $file->getSize();
-    
-            $gallery->save();
-        }
+        $gallery = new Gallery();
+        
+        $gallery->user_id = $user->id;
+        $gallery->filepath = $filepath;
+        $gallery->filetype = end($filetype);
+        $gallery->filesize = $file->getSize();
+
+        $gallery->save();
     }
 
     public function deleteImage(User $user, string $filepath): void

@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Controller;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,5 +13,5 @@ use App\Http\Controllers\Controller;
 |
 */
 
-Route::get('/{any}', [Controller::class, 'index'])->where('any', '^(?!api|storage).*$');
+Route::get('/{any}', 'Controller@index')->where('any', '^(?!api|storage).*$');
 

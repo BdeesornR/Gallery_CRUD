@@ -85,7 +85,7 @@ class GalleryRepoTest extends UnitTestCase
         $this->assertEquals($image4['filepath'], $imagesCollection->shift()->filepath);
     }
 
-    public function test_save_images()
+    public function test_save_image()
     {
         $disk = 'tests';
         $directory = 'storage_for_test';
@@ -94,14 +94,15 @@ class GalleryRepoTest extends UnitTestCase
 
         $user = User::factory()->create();
 
-        $files = [
-            UploadedFile::fake()->image('test_1.jpg'),
-            UploadedFile::fake()->image('test_2.jpg'),
-            UploadedFile::fake()->image('test_3.png'),
-            UploadedFile::fake()->image('test_4.png'),
-        ];
+        $file1 = UploadedFile::fake()->image('test_1.jpg');
+        $file2 = UploadedFile::fake()->image('test_2.jpg');
+        $file3 = UploadedFile::fake()->image('test_3.png');
+        $file4 = UploadedFile::fake()->image('test_4.png');
 
-        $this->galleryRepo->saveImages($user, $disk, $directory, $files);
+        $this->galleryRepo->saveImage($user, $disk, $directory, $file1);
+        $this->galleryRepo->saveImage($user, $disk, $directory, $file2);
+        $this->galleryRepo->saveImage($user, $disk, $directory, $file3);
+        $this->galleryRepo->saveImage($user, $disk, $directory, $file4);
 
         $imagesCollection = $user->galleries;
         $filepathArray = [];

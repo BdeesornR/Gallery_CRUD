@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Controllers;
+namespace Tests\Unit\Http\Controllers;
 
 use App\Http\Controllers\SummaryController;
 use App\Models\Gallery;
